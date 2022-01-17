@@ -33,7 +33,7 @@ class SiteMixin:
         return None
 
     def clear_str(self, string: str) -> str:
-        return string.lower().replace(" ", "")
+        return string.lower().replace(" ", "").rstrip("\n").rstrip("\t")
 
     def prepere_urls(self,urls: list[str]) -> List[SiteResponseData]:
         urls_to_response = []
