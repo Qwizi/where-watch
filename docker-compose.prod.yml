@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  where_watch:
+    build:
+      context: ./where_watch
+    command: "uvicorn main:app --host 0.0.0.0 --port 8006"
+    expose:
+      - 8006
+    environment:
+      - VIRTUAL_HOST=api.watch.jebzpapy.tk
+      - VIRTUAL_PORT=8006
+      - LETSENCRYPT_HOST=api.watch.jebzpapy.tk
+      - LETSENCRYPT_EMAIL=qwizi95@protonmail.com
+networks:
+  default:
+    external:
+      name: nginx-proxy
