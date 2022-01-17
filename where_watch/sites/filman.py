@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import httpx
 from sites.site import SiteMixin, SiteResponse, SiteResponseData
-
+from fastapi_cache.backends.redis import RedisCacheBackend
 class Filman(SiteMixin):
     name = "filman.cc"
     base_url = "https://filman.cc"

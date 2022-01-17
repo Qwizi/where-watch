@@ -1,14 +1,39 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
+from fastapi_cache import caches, close_caches
+from fastapi_cache.backends.redis import CACHE_KEY, RedisCacheBackend
 
-from sites.site import SiteManager
+
+from sites.site import SiteManager, SiteResponse
 from sites.zerion import Zerion
 from sites.filman import Filman
 
 app = FastAPI()
 
-site_manager = SiteManager(sites=[Zerion(), Filman()])
+def redis_cache():
+    return caches.get(CACHE_KEY)
+
+
+@app.on_event('startup')
+async def on_startup() -> None:
+    rc = RedisCacheBackend('redis://localhost:6379')
+    caches.set(CACHE_KEY, rc)
+
+@app.on_event('shutdown')
+async def on_shutdown() -> None:
+    await close_caches()
+
 
 @app.get("/search")
-async def search(title: str):
+async def search(title: str, cache: RedisCacheBackend = Depends(redis_cache)):
+    site_manager = SiteManager(cache, sites=[Zerion(), Filman()])
+    if await site_manager.exists_in_cache(title):
+        print("Pobieram z cache")
+        return await site_manager.get_from_cache(title)
+    print("Cache nie istnieje")
+
     responses = await site_manager.process(title=title)
+    responses_json = []
+    for r in responses:
+        responses_json.append(r.to_json())
+    await site_manager.add_to_cache(title=title, data=responses_json)
     return responses
