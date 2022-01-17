@@ -26,6 +26,13 @@ class SiteMixin:
     async def search(self, title: str) -> SiteResponseData:
         pass
 
+    def not_found_response(self):
+        response_data = SiteResponseData(url=None)
+        return SiteResponse(name=self.name, base_url=self.base_url, data=response_data)
+
+    def clear_str(self, string: str) -> str:
+        return string.lower().replace(" ", "")
+
 
 class SiteManager:
     sites = List[SiteMixin]

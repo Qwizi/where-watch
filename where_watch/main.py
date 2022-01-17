@@ -1,7 +1,6 @@
-from typing import List
 from fastapi import FastAPI
 
-from sites.site import SiteManager, SiteMixin
+from sites.site import SiteManager
 from sites.zerion import Zerion
 from sites.filman import Filman
 
