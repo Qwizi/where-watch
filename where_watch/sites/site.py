@@ -36,6 +36,13 @@ class SiteMixin:
     def clear_str(self, string: str) -> str:
         return string.lower().replace(" ", "")
 
+    def prepere_urls(self, urls: list[str]) -> List[SiteResponseData]:
+        urls_to_response = []
+        for url in urls:
+            urls_to_response.append(SiteResponseData(url=url))
+        return urls_to_response
+
+
 class SiteManager:
     sites = List[SiteMixin]
 
@@ -62,7 +69,7 @@ class SiteManager:
         if not await self.exists_in_cache(title):
             cache_key = await self.get_cache_key(title)
             data = json.dumps(data)
-            await self.cache.set(cache_key, data, expire=60)
+            await self.cache.set(cache_key, data, expire=5)
     
     async def get_from_cache(self, title):
         if await self.exists_in_cache(title):

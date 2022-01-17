@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI
 from fastapi_cache import caches, close_caches
 from fastapi_cache.backends.redis import CACHE_KEY, RedisCacheBackend
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from sites.site import SiteManager, SiteResponse
@@ -8,6 +9,14 @@ from sites.zerion import Zerion
 from sites.filman import Filman
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def redis_cache():
     return caches.get(CACHE_KEY)
