@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sites.site import SiteManager, SiteResponse
 from sites.zerion import Zerion
 from sites.filman import Filman
+from sites.ekino import Ekino
 
 app = FastAPI()
 
@@ -34,14 +35,13 @@ async def on_shutdown() -> None:
 
 @app.get("/search")
 async def search(title: str, cache: RedisCacheBackend = Depends(redis_cache)):
-    site_manager = SiteManager(cache, sites=[Zerion(), Filman()])
+    site_manager = SiteManager(cache, sites=[Zerion(), Filman(), Ekino()])
     if await site_manager.exists_in_cache(title):
         print("Pobieram z cache")
         return await site_manager.get_from_cache(title)
     print("Cache nie istnieje")
 
     responses = await site_manager.process(title=title)
-    print(responses)
     responses_json = []
     for r in responses:
         responses_json.append(r.to_json())
