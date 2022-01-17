@@ -24,8 +24,10 @@ class Filman(SiteMixin):
                             url = row_div.find("a")['href']
                             urls.append(url)
                 response.raise_for_status()
+                if not urls:
+                    return None
                 response_data = self.prepere_urls(urls)
                 return SiteResponse(name=self.name, base_url=self.base_url, data=response_data)
         except httpx.HTTPError as e:
-            return self.not_found_response()
+            return None
     

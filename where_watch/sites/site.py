@@ -30,13 +30,12 @@ class SiteMixin:
         pass
 
     def not_found_response(self):
-        response_data = SiteResponseData(url=None)
-        return SiteResponse(name=self.name, base_url=self.base_url, data=response_data)
+        return None
 
     def clear_str(self, string: str) -> str:
         return string.lower().replace(" ", "")
 
-    def prepere_urls(self, urls: list[str]) -> List[SiteResponseData]:
+    def prepere_urls(self,urls: list[str]) -> List[SiteResponseData]:
         urls_to_response = []
         for url in urls:
             urls_to_response.append(SiteResponseData(url=url))
@@ -53,7 +52,8 @@ class SiteManager:
     
     async def process(self, title: str) -> List[SiteResponseData]:
         site_responses = await asyncio.gather(*[site.search(title=title) for site in self.sites])
-        return site_responses
+            
+        return [i for i in site_responses if i]
 
     async def get_sites(self) -> List[SiteMixin]:
         return self.sites

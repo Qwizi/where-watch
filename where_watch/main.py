@@ -41,6 +41,7 @@ async def search(title: str, cache: RedisCacheBackend = Depends(redis_cache)):
     print("Cache nie istnieje")
 
     responses = await site_manager.process(title=title)
+    print(responses)
     responses_json = []
     for r in responses:
         responses_json.append(r.to_json())

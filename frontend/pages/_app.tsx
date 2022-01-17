@@ -16,7 +16,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <Navbar bg="dark" expand="lg" variant="dark">
         <Container>
-          <Navbar.Brand href="#home">GdzieObejrze.tk</Navbar.Brand>
+          <Navbar.Brand href="/">GdzieObejrze.tk</Navbar.Brand>
         </Container>
       </Navbar>
       <Container>
