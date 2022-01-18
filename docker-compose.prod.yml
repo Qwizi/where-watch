@@ -12,8 +12,6 @@ services:
     restart: always
     tty: true
     command: "uvicorn main:app --host 0.0.0.0 --port 8006"
-    expose:
-      - 8006
     environment:
       - REDIS=redis://redis:6378/1
       - VIRTUAL_HOST=apiwatch.jebzpapy.tk
@@ -26,8 +24,6 @@ services:
       context: ./frontend
     restart: always
     tty: true
-    expose:
-      - 3000
     environment:
       - API_URL
       - VIRTUAL_HOST=watch.jebzpapy.tk
