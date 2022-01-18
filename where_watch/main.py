@@ -1,13 +1,16 @@
+import uvicorn
+
 from fastapi import Depends, FastAPI
 from fastapi_cache import caches, close_caches
 from fastapi_cache.backends.redis import CACHE_KEY, RedisCacheBackend
 from fastapi.middleware.cors import CORSMiddleware
 
-
-from sites.site import SiteManager, SiteResponse
-from sites.zerion import Zerion
-from sites.filman import Filman
-from sites.ekino import Ekino
+from sites import (
+    SiteManager,
+    Zerion,
+    Filman,
+    Ekino
+)
 
 app = FastAPI()
 
@@ -42,8 +45,9 @@ async def search(title: str, cache: RedisCacheBackend = Depends(redis_cache)):
     print("Cache nie istnieje")
 
     responses = await site_manager.process(title=title)
-    responses_json = []
-    for r in responses:
-        responses_json.append(r.to_json())
+    responses_json = [x.to_json() for x in responses]
     await site_manager.add_to_cache(title=title, data=responses_json)
     return responses
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='0.0.0.0', port=8000)

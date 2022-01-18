@@ -3,8 +3,10 @@ import asyncio
 from dataclasses import dataclass
 import json
 from typing import List
+from bs4 import BeautifulSoup
 from dataclasses_json import dataclass_json
 from fastapi_cache.backends.redis import RedisCacheBackend
+import httpx
 @dataclass
 class Site:
     name: str
@@ -40,6 +42,12 @@ class SiteMixin:
         for url in urls:
             urls_to_response.append(SiteResponseData(url=url))
         return urls_to_response
+
+    async def get_response_html(self, url: str) -> BeautifulSoup:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            return BeautifulSoup(response.text, features="html.parser")
 
 
 class SiteManager:
