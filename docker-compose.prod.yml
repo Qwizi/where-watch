@@ -18,8 +18,6 @@ services:
       - REDIS=redis://redis:6378/1
       - VIRTUAL_HOST=apiwatch.jebzpapy.tk
       - VIRTUAL_PORT=8006
-      - LETSENCRYPT_HOST=api.watch.jebzpapy.tk
-      - LETSENCRYPT_EMAIL=qwizi95@protonmail.com
     depends_on:
       - redis
   
@@ -34,8 +32,6 @@ services:
       - API_URL
       - VIRTUAL_HOST=watch.jebzpapy.tk
       - VIRTUAL_PORT=3000
-      - LETSENCRYPT_HOST=watch.jebzpapy.tk
-      - LETSENCRYPT_EMAIL=qwizi95@protonmail.com
 networks:
   default:
     external:
