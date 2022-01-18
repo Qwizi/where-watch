@@ -5,7 +5,7 @@ services:
     image: "redis:alpine"
     restart: always
     ports:
-      - "6379:6379"
+      - "6378:6378"
   where_watch:
     build:
       context: ./where_watch
@@ -15,7 +15,7 @@ services:
     expose:
       - 8006
     environment:
-      - REDIS=redis://redis:6379/1
+      - REDIS=redis://redis:6378/1
       - VIRTUAL_HOST=apiwatch.jebzpapy.tk
       - VIRTUAL_PORT=8006
       - LETSENCRYPT_HOST=api.watch.jebzpapy.tk
