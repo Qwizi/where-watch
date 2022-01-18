@@ -38,16 +38,18 @@ class SiteMixin:
         return string.lower().replace(" ", "").rstrip("\n").rstrip("\t")
 
     def prepere_urls(self,urls: list[str]) -> List[SiteResponseData]:
-        urls_to_response = []
-        for url in urls:
-            urls_to_response.append(SiteResponseData(url=url))
-        return urls_to_response
+        return [SiteResponseData(url=url) for url in urls]
+
 
     async def get_response_html(self, url: str) -> BeautifulSoup:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            return BeautifulSoup(response.text, features="html.parser")
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                response.raise_for_status()
+                return BeautifulSoup(response.text, features="html.parser")
+        except httpx.HTTPError as e:
+            print(e)
+            return None
 
 
 class SiteManager:
