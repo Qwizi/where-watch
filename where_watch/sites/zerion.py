@@ -16,7 +16,7 @@ class Zerion(SiteMixin):
         for litag in ul_list.find_all("li"):
             # get div info
             div_info = litag.find("div", class_="info")
-            # if div info is not found return None
+            # if div info is not found continue
             if not div_info:
                 continue
             
