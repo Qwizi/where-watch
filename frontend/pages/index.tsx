@@ -9,7 +9,7 @@ const CardLink = (props: any) => {
 
     const linkList = data.map((data: any, i: number) => 
 
-          <ListGroup.Item>
+          <ListGroup.Item key={i}>
             <Card.Link href={data.url} target="_blank">{data.url}</Card.Link>
           </ListGroup.Item>
         )
@@ -22,7 +22,7 @@ const ResultCardList = (props: any) => {
   const {data} = props;
   if (data) {
     const listData = data.map((data: any, i: number) =>
-      <Card style={{marginBottom: "25px"}}>
+      <Card style={{marginBottom: "25px"}} key={i}>
         <Card.Header>{data.name}</Card.Header>
         <Card.Body>
           <ListGroup variant="flush">
@@ -58,11 +58,12 @@ const Home: NextPage = () => {
     
   }, [router.query])
 
-  const fetch = async (title) => {
+  const fetch = async (title: any) => {
     
     if (title) {
       console.log("Pobieram dane")
-      const response = await axios.get(`http://localhost:8000/search?title=${title}`)
+      const url = process.env.API_URL
+      const response = await axios.get(`${url}/search?title=${title}`)
       setData([])
       setData(response.data)
       console.log(response.data)
@@ -72,8 +73,6 @@ const Home: NextPage = () => {
 
   const onFormSubmit = async (e: any) => {
     e.preventDefault()
-    //const response = await axios.get(`http://localhost:8000/search?title=${searchInput}`)
-    //setData(response.data)
     router.push({
       pathname: "/",
       query: {
