@@ -62,7 +62,7 @@ const Home: NextPage = () => {
     
     if (title) {
       console.log("Pobieram dane")
-      const url = process.env.API_URL
+      const url = process.env.API_URL || "https://apiwatch.jebzpapy.tk"
       const response = await axios.get(`${url}/search?title=${title}`)
       setData([])
       setData(response.data)
