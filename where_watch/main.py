@@ -41,9 +41,7 @@ async def on_shutdown() -> None:
 async def search(title: str, cache: RedisCacheBackend = Depends(redis_cache)):
     site_manager = SiteManager(cache, sites=[Zerion(), Filman(), Ekino()])
     if await site_manager.exists_in_cache(title):
-        print("Pobieram z cache")
         return await site_manager.get_from_cache(title)
-    print("Cache nie istnieje")
 
     responses = await site_manager.process(title=title)
     responses_json = [x.to_json() for x in responses]
