@@ -16,6 +16,7 @@ services:
     environment:
       - REDIS=redis://redis:6378/1
       - VIRTUAL_HOST=apiwatch.jebzpapy.tk
+      - LETSENCRYPT_HOST=apiwatch.jebzpapy.tk
       - VIRTUAL_PORT=8006
     depends_on:
       - redis
@@ -29,6 +30,7 @@ services:
     environment:
       - API_URL
       - VIRTUAL_HOST=watch.jebzpapy.tk
+      - LETSENCRYPT_HOST=watch.jebzpapy.tk
       - VIRTUAL_PORT=3000
 networks:
   default:
