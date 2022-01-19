@@ -1,38 +1,21 @@
 version: "3"
 
 services:
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy
-    restart: always
-    networks:
-      - where-watch
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - ENABLE_IPV6=true
-    volumes:
-      - nginx-certs:/etc/nginx/certs
-      - nginx-html:/usr/share/nginx/html
-      - /var/run/docker.sock:/tmp/docker.sock:ro
   redis:
     image: "redis:alpine"
     restart: always
-    networks:
-      - where-watch
     ports:
       - "6378:6378"
   where_watch:
     build:
       context: ./where_watch
-    networks:
-      - where-watch
+    container_name: where_watch_api
     restart: always
     tty: true
     command: "uvicorn main:app --host 0.0.0.0 --port 8006"
     environment:
       - REDIS=redis://redis:6378/1
-      - VIRTUAL_HOST=apiwatch.jebzpapy.tk,www.apiwatch.jebzpapy.tk
+      - VIRTUAL_HOST=apiwatch.jebzpapy.tk
       - VIRTUAL_PORT=8006
     depends_on:
       - redis
@@ -40,21 +23,14 @@ services:
   frontend:
     build:
       context: ./frontend
-    networks:
-      - where-watch
+    container_name: where_watch_frontend
     restart: always
     tty: true
     environment:
       - API_URL
-      - VIRTUAL_HOST=jebzpapy.tk
+      - VIRTUAL_HOST=watch.jebzpapy.tk
       - VIRTUAL_PORT=3000
-
-
 networks:
-  where-watch:
-
-
-volumes:
-  acme:
-  nginx-certs:
-  nginx-html:
+  default:
+    external:
+      name: nginx-proxy
