@@ -29,7 +29,7 @@ def redis_cache():
 
 @app.on_event('startup')
 async def on_startup() -> None:
-    rc = RedisCacheBackend(os.getenv("REDIS", "redis://redis:6378/1"))
+    rc = RedisCacheBackend(os.getenv("REDIS", "redis://redis:6378"))
     caches.set(CACHE_KEY, rc)
 
 @app.on_event('shutdown')
