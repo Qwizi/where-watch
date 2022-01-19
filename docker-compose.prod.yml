@@ -28,7 +28,7 @@ services:
     restart: always
     tty: true
     environment:
-      - API_URL
+      - API_URL=https://apiwatch.jebzpapy.tk
       - VIRTUAL_HOST=watch.jebzpapy.tk
       - LETSENCRYPT_HOST=watch.jebzpapy.tk
       - VIRTUAL_PORT=3000
