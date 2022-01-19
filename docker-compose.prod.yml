@@ -4,8 +4,9 @@ services:
   redis:
     image: "redis:alpine"
     restart: always
-    ports:
-      - "6378:6378"
+    command: --port 6378
+    expose:
+      - 6378
   where_watch:
     build:
       context: ./where_watch

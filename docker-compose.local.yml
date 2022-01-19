@@ -4,8 +4,9 @@ services:
   redis:
     image: "redis:alpine"
     restart: always
-    ports:
-      - "6378:6378"
+    command: --port 6378
+    expose:
+      - 6378
   where_watch:
     build:
       context: ./where_watch
@@ -14,7 +15,7 @@ services:
     tty: true
     command: "uvicorn main:app --host 0.0.0.0 --port 8006"
     environment:
-      - REDIS=redis://redis:6378/1
+      - REDIS=redis://redis:6378
       - VIRTUAL_HOST=api.dupa.local
       - VIRTUAL_PORT=8006
     depends_on:
