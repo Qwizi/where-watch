@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  redis:
+    image: "redis:alpine"
+    restart: always
+    ports:
+      - "6378:6378"
+  where_watch:
+    build:
+      context: ./where_watch
+    container_name: where_watch_api
+    restart: always
+    tty: true
+    command: "uvicorn main:app --host 0.0.0.0 --port 8006"
+    environment:
+      - REDIS=redis://redis:6378/1
+      - VIRTUAL_HOST=api.dupa.local
+      - VIRTUAL_PORT=8006
+    depends_on:
+      - redis
+  
+  frontend:
+    build:
+      context: ./frontend
+    container_name: where_watch_frontend
+    restart: always
+    tty: true
+    environment:
+      - API_URL
+      - VIRTUAL_HOST=watch.dupa.local
+      - VIRTUAL_PORT=3000
+networks:
+  default:
+    external:
+      name: nginx-proxy
