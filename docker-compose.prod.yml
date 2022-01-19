@@ -28,7 +28,7 @@ services:
     tty: true
     environment:
       - API_URL
-      - VIRTUAL_HOST=watch.jebzpapy.tk,www.watch.jebzpapy.tk
+      - VIRTUAL_HOST=jebzpapy.tk
       - VIRTUAL_PORT=3000
 networks:
   default:
