@@ -6,3 +6,43 @@ services:
     restart: always
     ports:
       - "6379:6379"
+  where_watch:
+    build:
+      context: ./where_watch
+    container_name: where_watch_api
+    restart: always
+    tty: true
+    ports:
+    - "8006:8006"
+    command: "uvicorn main:app --host 0.0.0.0 --port 8006 --reload"
+    environment:
+      - REDIS=redis://redis:6378
+    depends_on:
+      - redis
+    volumes:
+      - ./where_watch:/usr/src/app
+  worker:
+    build: ./where_watch
+    command: celery --app worker.worker worker --loglevel=info
+    volumes:
+      - ./where_watch:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    depends_on:
+      - redis
+      - where_watch
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+    container_name: where_watch_frontend
+    restart: always
+    ports:
+    - "3000:3000"
+    tty: true
+    environment:
+      - API_URL=http://api.dupa.local
+    volumes:
+      - "./frontend:/my-project"

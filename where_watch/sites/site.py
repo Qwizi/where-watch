@@ -7,7 +7,11 @@ from bs4 import BeautifulSoup
 from dataclasses_json import dataclass_json
 from fastapi_cache.backends.redis import RedisCacheBackend
 import httpx
-@dataclass
+from pydantic import BaseModel
+
+from schemas import BroadcastItem, SiteResponse, SiteResponseData
+from utils import send_data_to_broadcast
+"""@dataclass
 class Site:
     name: str
     url: str
@@ -23,12 +27,25 @@ class SiteResponse:
     base_url: str
     data: List[SiteResponseData]
 
+@dataclass_json
+class APISiteResponseData(BaseModel, SiteResponseData):
+    pass
+@dataclass_json
+class APISiteResponse(BaseModel):
+    name: str
+    base_url: str
+    data: List[APISiteResponseData]
+
+@dataclass_json
+class APIResponse(BaseModel):
+    items: List[APISiteResponse]"""
+
 class SiteMixin:
     base_url: str
     name: str
 
     @abstractmethod
-    async def search(self, title: str) -> SiteResponseData:
+    async def search(self, title: str) -> SiteResponse:
         pass
 
     def not_found_response(self):
@@ -54,15 +71,15 @@ class SiteMixin:
 
 class SiteManager:
     sites = List[SiteMixin]
+    progress: int
 
-    def __init__(self, cache, sites: List[SiteMixin]):
-        self.cache: RedisCacheBackend = cache
+    def __init__(self, sites: List[SiteMixin]):
+        #self.cache: RedisCacheBackend = cache
         self.sites = sites
 
     
-    async def process(self, title: str) -> List[SiteResponseData]:
+    async def process(self, title: str) -> List[SiteResponse]:
         site_responses = await asyncio.gather(*[site.search(title=title) for site in self.sites])
-            
         return [i for i in site_responses if i]
 
     async def get_sites(self) -> List[SiteMixin]:
@@ -79,7 +96,7 @@ class SiteManager:
         if not await self.exists_in_cache(title):
             cache_key = await self.get_cache_key(title)
             data = json.dumps(data)
-            await self.cache.set(cache_key, data, expire=5)
+            await self.cache.set(cache_key, data, expire=600)
     
     async def get_from_cache(self, title):
         if await self.exists_in_cache(title):
