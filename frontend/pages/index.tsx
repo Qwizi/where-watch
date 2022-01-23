@@ -2,7 +2,31 @@ import axios from 'axios'
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { Button, Card, Col, Form, ListGroup, Nav, Row, Tab } from 'react-bootstrap'
+import { Button, Card, Col, Form, ListGroup, Nav, ProgressBar, Row, Tab } from 'react-bootstrap'
+import { io, Socket} from 'socket.io-client'
+
+function useSocket(url: string) {
+  const [socket, setSocket] = useState<Socket | null>(null)
+
+  useEffect(() => {
+    const socketIo = io(url, {
+			path: '/ws/socket.io'
+		})
+
+    setSocket(socketIo)
+
+    function cleanup() {
+      socketIo.disconnect()
+    }
+    return cleanup
+
+    // should only run once and not on every re-render,
+    // so pass an empty array
+  }, [])
+
+  return socket
+}
+
 
 const CardLink = (props: any) => {
   const {data} = props;
@@ -20,7 +44,7 @@ const CardLink = (props: any) => {
 
 const ResultCardList = (props: any) => {
   const {data} = props;
-  if (data) {
+  if (data.length > 0) {
     const listData = data.map((data: any, i: number) =>
       <Card style={{marginBottom: "25px"}} key={i}>
         <Card.Header>{data.name}</Card.Header>
@@ -41,7 +65,9 @@ const ResultCardList = (props: any) => {
 const Home: NextPage = () => {
   const [searchInput, setSearchInput] = useState("")
   const [data, setData] = useState([])
+  const [progress, setProgress] = useState<null | number>(null);
   const router = useRouter()
+  const socket = useSocket("http://localhost:8006");
 
   useEffect(() => {
     if(!router.isReady) return;
@@ -49,24 +75,39 @@ const Home: NextPage = () => {
       fetch(router.query.title)
     }
     
-  }, [router.isReady])
+  }, [router.isReady, router.query])
 
   useEffect(() => {
-    if (router?.query?.title) {
-      fetch(router.query.title)
+    if (socket) {
+      console.log(socket)
+      socket.on("connection", (event) => {
+        console.log(socket)
+        socket.emit('client_connected', { data: 'User connected' });
+      })
+
+      socket.on("search_data", (data) => {
+        setData(data)
+        setProgress(null)
+      })
+      socket.on("progress", (data) => {
+        console.log(data)
+        setProgress(data[0].progress)
+      })
     }
-    
-  }, [router.query])
+  }, [socket])
 
   const fetch = async (title: any) => {
     
     if (title) {
       console.log("Pobieram dane")
-      const url = process.env.API_URL || "https://apiwatch.jebzpapy.tk"
-      const response = await axios.get(`${url}/search?title=${title}`)
       setData([])
-      setData(response.data)
-      console.log(response.data)
+      setProgress(null)
+      //const url = process.env.API_URL || "https://apiwatch.jebzpapy.tk"
+      //const response = await axios.get(`${url}/search?title=${title}`)
+      //setData([])
+      //setData(response.data)
+      //console.log(response.data)
+      socket?.emit("search", {title: title})
     }
     
   }
@@ -105,13 +146,18 @@ const Home: NextPage = () => {
           </Form>
         </Col>
       </Row>
-      {data && data.length > 0 &&  (
+      
       <Row style={{marginTop: "50px"}}>
         <Col>
+        {progress && (
+              <ProgressBar now={progress} label={`${progress}%`} />
+          )}
+          {data && data.length >= 1 &&  (
             <ResultCardList data={data}/>
+          )}
         </Col>
       </Row>
-      )}
+      
     </div>
   )
 }
