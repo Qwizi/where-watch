@@ -21,6 +21,15 @@ services:
       - VIRTUAL_PORT=8006
     depends_on:
       - redis
+  worker:
+    build: ./where_watch
+    command: celery --app worker.worker worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6378
+      - CELERY_RESULT_BACKEND=redis://redis:6378
+    depends_on:
+      - redis
+      - where_watch
 networks:
   default:
     external:
