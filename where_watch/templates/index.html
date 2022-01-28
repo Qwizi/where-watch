@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+{{ super() }}
+<div class="row">
+    <div class="col">
+        <h2>Co chcesz dzisiaj oglądnąć?</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <form id="searchForm">
+            <div class="mb-3">
+                <input type="text" name="title" class="form-control" id="searchInput" />
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="spinner-border" role="status" style="display: none" id="spinner">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+<div class="row" id="search-results-row" style="display: none">
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <h3>Wyniki dla {{ title }}</h3>
+            </div>
+        </div>
+        <div class="row" id="search-results">
+
+        </div>
+    </div>
+</div>
+{% endblock %} {% block js %} {{ super() }}
+<script>
+    const sio = io("http://localhost:8006", {
+        path: '/ws/socket.io'
+    });
+
+    const params = new URLSearchParams(window.location.search)
+    const form = document.getElementById("searchForm")
+    const spinner = document.getElementById("spinner")
+    const searchResultsRow = document.getElementById("search-results-row")
+
+    const showSpinner = () => {
+        spinner.style.display = "block"
+    }
+
+    const hideSpinner = () => {
+        spinner.style.display = "none"
+    }
+
+    const showSearchResults = () => {
+        searchResultsRow.style.display = "block"
+    }
+
+    const hideSearchResults = () => {
+        searchResultsRow.style.display = "none"
+    }
+
+    if (params.has("title")) {
+        console.log(params.get("title"))
+        showSpinner()
+        sio.emit("search", { title: params.get("title") })
+    } display = "none"
+    sio.on("search", (data) => {
+        sio.emit("search", data)
+    })
+    sio.on("search_data", (data) => {
+        if (params.has("title")) {
+            console.log(data)
+            hideSpinner()
+            if (spinner.style.display == "none") {
+                showSearchResults()
+                const searchResults = document.getElementById("search-results")
+                if (data.length > 0) {
+                    data.forEach((value, index) => {
+                        console.log(index)
+                        let links = '<ul class="list-group list-group-flush">';
+                        value.data.forEach((link, index) => {
+                            links += `<li class="list-group-item">
+                                <a href="${link.url}" target="_blank" title="${link.title}">
+                                    ${link.url}
+                                </a>
+                            </li>`
+                        })
+                        links += '</ul>'
+                        searchResults.innerHTML += `
+                                <div class="row>"
+                                    <div class="col" >
+                                        <div class="card">
+                                            <div class="card-header">
+                                                ${value.name}
+                                            </div>
+                                            <div class="card-body">
+                                                ${links}
+                                            </div>
+                                        </div>
+                                </div >
+                            </div >
+                                `
+                    })
+                } else {
+                    searchResults.innerHTML += `
+                        <div class="col" >
+                            Brak
+                        </div >
+                    `
+                }
+            }
+        }
+
+    })
+
+</script>
+{% endblock %}

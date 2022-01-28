@@ -4,8 +4,9 @@ services:
   redis:
     image: "redis:alpine"
     restart: always
-    ports:
-      - "6379:6379"
+    command: --port 6378
+    expose:
+      - 6378
   where_watch:
     build:
       context: ./where_watch
@@ -20,29 +21,16 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./where_watch:/usr/src/app
+      - ./where_watch:/code
+
   worker:
     build: ./where_watch
     command: celery --app worker.worker worker --loglevel=info
     volumes:
-      - ./where_watch:/usr/src/app
+      - ./where_watch:/code
     environment:
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6378
+      - CELERY_RESULT_BACKEND=redis://redis:6378
     depends_on:
       - redis
       - where_watch
-  
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.local
-    container_name: where_watch_frontend
-    restart: always
-    ports:
-    - "3000:3000"
-    tty: true
-    environment:
-      - API_URL=http://api.dupa.local
-    volumes:
-      - "./frontend:/my-project"

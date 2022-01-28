@@ -5,7 +5,6 @@ import json
 from typing import List
 from bs4 import BeautifulSoup
 from dataclasses_json import dataclass_json
-from fastapi_cache.backends.redis import RedisCacheBackend
 import httpx
 from pydantic import BaseModel
 
@@ -40,6 +39,7 @@ class APISiteResponse(BaseModel):
 class APIResponse(BaseModel):
     items: List[APISiteResponse]"""
 
+
 class SiteMixin:
     base_url: str
     name: str
@@ -54,9 +54,8 @@ class SiteMixin:
     def clear_str(self, string: str) -> str:
         return string.lower().replace(" ", "").rstrip("\n").rstrip("\t")
 
-    def prepere_urls(self,urls: list[str]) -> List[SiteResponseData]:
+    def prepere_urls(self, urls: list[str]) -> List[SiteResponseData]:
         return [SiteResponseData(url=url) for url in urls]
-
 
     async def get_response_html(self, url: str) -> BeautifulSoup:
         try:
@@ -77,7 +76,6 @@ class SiteManager:
         #self.cache: RedisCacheBackend = cache
         self.sites = sites
 
-    
     async def process(self, title: str) -> List[SiteResponse]:
         site_responses = await asyncio.gather(*[site.search(title=title) for site in self.sites])
         return [i for i in site_responses if i]
@@ -97,7 +95,7 @@ class SiteManager:
             cache_key = await self.get_cache_key(title)
             data = json.dumps(data)
             await self.cache.set(cache_key, data, expire=600)
-    
+
     async def get_from_cache(self, title):
         if await self.exists_in_cache(title):
             data = await self.cache.get(await self.get_cache_key(title))

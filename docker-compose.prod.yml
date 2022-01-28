@@ -16,23 +16,11 @@ services:
     command: "uvicorn main:app --host 0.0.0.0 --port 8006"
     environment:
       - REDIS=redis://redis:6378
-      - VIRTUAL_HOST=apiwatch.jebzpapy.tk
-      - LETSENCRYPT_HOST=apiwatch.jebzpapy.tk
+      - VIRTUAL_HOST=watch.jebzpapy.tk
+      - LETSENCRYPT_HOST=watch.jebzpapy.tk
       - VIRTUAL_PORT=8006
     depends_on:
       - redis
-  
-  frontend:
-    build:
-      context: ./frontend
-    container_name: where_watch_frontend
-    restart: always
-    tty: true
-    environment:
-      - API_URL=https://apiwatch.jebzpapy.tk
-      - VIRTUAL_HOST=watch.jebzpapy.tk
-      - LETSENCRYPT_HOST=watch.jebzpapy.tk
-      - VIRTUAL_PORT=3000
 networks:
   default:
     external:
