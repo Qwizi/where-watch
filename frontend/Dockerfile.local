@@ -1,9 +1,0 @@
-FROM node:lts as runner
-WORKDIR /my-project
-
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
-EXPOSE 3000
-
-CMD ["yarn", "dev"]
