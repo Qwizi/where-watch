@@ -2,6 +2,7 @@ import httpx
 from schemas import BroadcastItem
 from fastapi.encoders import jsonable_encoder
 
+
 async def send_data_to_broadcast(item: BroadcastItem):
     item_json = jsonable_encoder(item)
     async with httpx.AsyncClient() as client:
