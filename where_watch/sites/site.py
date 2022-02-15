@@ -4,40 +4,9 @@ from dataclasses import dataclass
 import json
 from typing import List
 from bs4 import BeautifulSoup
-from dataclasses_json import dataclass_json
 import httpx
-from pydantic import BaseModel
 
-from schemas import BroadcastItem, SiteResponse, SiteResponseData
-from utils import send_data_to_broadcast
-"""@dataclass
-class Site:
-    name: str
-    url: str
-
-@dataclass
-class SiteResponseData:
-    url: str
-
-@dataclass_json
-@dataclass
-class SiteResponse:
-    name: str
-    base_url: str
-    data: List[SiteResponseData]
-
-@dataclass_json
-class APISiteResponseData(BaseModel, SiteResponseData):
-    pass
-@dataclass_json
-class APISiteResponse(BaseModel):
-    name: str
-    base_url: str
-    data: List[APISiteResponseData]
-
-@dataclass_json
-class APIResponse(BaseModel):
-    items: List[APISiteResponse]"""
+from schemas import SiteResponse, SiteResponseData
 
 
 class SiteMixin:
@@ -62,7 +31,7 @@ class SiteMixin:
             async with httpx.AsyncClient() as client:
                 response = await client.get(url)
                 response.raise_for_status()
-                return BeautifulSoup(response.text, features="html.parser")
+                return BeautifulSoup(response.text, "lxml")
         except httpx.HTTPError as e:
             print(e)
             return None

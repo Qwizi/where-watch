@@ -7,10 +7,23 @@ services:
     command: --port 6378
     expose:
       - 6378
-  where_watch:
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=where_watch
+      - POSTGRES_PASSWORD=where_watch
+      - POSTGRES_DB=where_watch
+    expose:
+      - 5432
+  
+  web:
     build:
       context: ./where_watch
-    container_name: where_watch_api
+    container_name: web
     restart: always
     tty: true
     ports:
@@ -18,8 +31,10 @@ services:
     command: "uvicorn main:app --host 0.0.0.0 --port 8006 --reload"
     environment:
       - REDIS=redis://redis:6378
+      - DATABASE_URL=postgres://where_watch:where_watch@db:5432/where_watch
     depends_on:
       - redis
+      - db
     volumes:
       - ./where_watch:/code
 
@@ -33,4 +48,8 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6378
     depends_on:
       - redis
-      - where_watch
+      - web
+      - db
+
+volumes:
+  postgres_data:
