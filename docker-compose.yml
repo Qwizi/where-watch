@@ -1,36 +1,61 @@
 version: "3"
 
 services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=where_watch
+      - POSTGRES_PASSWORD=where_watch
+      - POSTGRES_DB=where_watch
+    expose:
+      - 5432
   redis:
     image: "redis:alpine"
     restart: always
     command: --port 6378
     expose:
       - 6378
-  where_watch:
+  app:
     build:
-      context: ./where_watch
-    container_name: where_watch_api
+      context: ./app
+    container_name: where_watch_app
+    image: where_watch_app
     restart: always
     tty: true
     ports:
     - "8006:8006"
-    command: "uvicorn main:app --host 0.0.0.0 --port 8006 --reload"
+    command: "gunicorn app.wsgi:application --bind 0.0.0.0:8006"
     environment:
-      - REDIS=redis://redis:6378
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - REDIS
     depends_on:
       - redis
+      - db
     volumes:
-      - ./where_watch:/code
+      - ./app:/code
 
-  worker:
-    build: ./where_watch
-    command: celery --app worker.worker worker --loglevel=info
+  django-q:
+    container_name: where_watch_django_q
+    image: where_watch_app
+    command: python manage.py qcluster
     volumes:
-      - ./where_watch:/code
+      - ./app:/code
     environment:
-      - CELERY_BROKER_URL=redis://redis:6378
-      - CELERY_RESULT_BACKEND=redis://redis:6378
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - REDIS
     depends_on:
       - redis
-      - where_watch
+      - app
+      - db
+
+volumes:
+  postgres_data:
