@@ -26,8 +26,8 @@ services:
     restart: always
     tty: true
     ports:
-    - "8006:8006"
-    command: "gunicorn app.wsgi:application --bind 0.0.0.0:8006"
+      - "8006:8006"
+    command: "gunicorn --reload app.wsgi:application --bind 0.0.0.0:8006 -w 3"
     environment:
       - DATABASE_NAME
       - DATABASE_USER
@@ -38,14 +38,14 @@ services:
       - redis
       - db
     volumes:
-      - ./app:/code
+      - ./app:/home/app/web
 
   django-q:
     container_name: where_watch_django_q
     image: where_watch_app
     command: python manage.py qcluster
     volumes:
-      - ./app:/code
+      - ./app:/home/app/web
     environment:
       - DATABASE_NAME
       - DATABASE_USER
